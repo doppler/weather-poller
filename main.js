@@ -30,9 +30,8 @@ port.on("open", () => {
       }, 2000);
       return requestLoop();
     }
-    const weatherStationData = jsonFromVantageLoopPacket(data.slice(1));
     process.stdout.write(
-      JSON.stringify({ _id: new Date(), ...weatherStationData }) + "\n"
+      JSON.stringify(jsonFromVantageLoopPacket(data.slice(1))) + "\n"
     );
   });
 });
