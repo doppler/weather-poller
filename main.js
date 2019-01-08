@@ -1,5 +1,6 @@
 const SerialPort = require("serialport");
 const events = require("events");
+const LoopParser = require("./lib/loop-parser");
 const parseLoopPacket = require("./lib/parseLoopPacket");
 
 const config = require("./config");
@@ -10,6 +11,8 @@ const port = new SerialPort(config.PORT, { baudRate: 19200 }, err => {
   if (err) return console.error;
 });
 
+const parser = port.pipe(new LoopParser());
+
 port.on("open", () => {
   console.log(`Opened port ${config.PORT}`);
   port.write("\n", err => {
@@ -18,9 +21,9 @@ port.on("open", () => {
     }
   });
 
-  port.on("data", data => {
+  parser.on("data", data => {
     console.log(new Date(), data, data.length);
-    if (data.toString() === "\n\r") {
+    if (data.toString() === "ACK") {
       console.debug("Writing LOOP 1");
       port.write("LOOP 1\n");
       return;
@@ -46,8 +49,14 @@ port.on("open", () => {
 const fs = require("fs");
 const db = fs.createWriteStream("./database.txt");
 
+const PouchDB = require("pouchdb");
+const DB = new PouchDB("http://10.101.25.123:5984/wsd");
+
 const saveData = data => {
-  db.write(JSON.stringify(data) + "\n");
+  // db.write(JSON.stringify(data) + "\n");
+  DB.put(data)
+    .then(res => console.log(res))
+    .catch(err => console.error(err.message));
 };
 
 WeatherStation.on("loop", data => {
