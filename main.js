@@ -19,14 +19,21 @@ if (!program.dbHost || !program.dbTable || !program.location) {
 
 const run = conn => {
   let prevWindDirs = [];
-  const prevWindBufferLen = 120;
+  let prevWindSpeeds = [];
+  const prevWindDirsBufferLen = 60; // 2 minutes
+  const prevWindSpeedsBufferLen = (60 * 20) / 2; // 20 minutes
   weatherStationFeed.stdout.on("data", line => {
     const data = JSON.parse(line);
     prevWindDirs.push(data.windDirection);
+    prevWindSpeeds.push(data.windSpeed);
     prevWindDirs =
-      prevWindDirs.length > prevWindBufferLen
-        ? prevWindDirs.slice(1, prevWindBufferLen + 1)
+      prevWindDirs.length > prevWindDirsBufferLen
+        ? prevWindDirs.slice(1, prevWindDirsBufferLen + 1)
         : prevWindDirs;
+    prevWindSpeeds =
+      prevWindSpeeds.length > prevWindSpeedsBufferLen
+        ? prevWindSpeeds.slice(1, prevWindSpeedsBufferLen + 1)
+        : prevWindSpeeds;
     try {
       const record = {
         id: `${program.location}-current`,
@@ -34,7 +41,8 @@ const run = conn => {
         location: program.location,
         time: new Date(),
         ...data,
-        prevWindDirs
+        prevWindDirs,
+        prevWindSpeeds
       };
       console.log(JSON.stringify(record));
       r.table(program.dbTable)
