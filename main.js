@@ -17,32 +17,11 @@ if (!program.dbHost || !program.dbTable || !program.location) {
   process.exit(1);
 }
 
-let sequence = 0;
-
-const setSequence = conn => {
-  try {
-    r.table(program.dbTable)
-      .filter({ type: "weather", location: program.location })
-      .max("sequence")
-      .run(conn, (err, result) => {
-        console.log("result", result);
-        if (result) {
-          sequence = result.sequence;
-          console.log("setSequence", result.sequence);
-        }
-      });
-  } catch (err) {
-    console.error(err);
-  }
-};
-
 const run = conn => {
-  setSequence(conn);
   weatherStationFeed.stdout.on("data", data => {
-    sequence++;
     try {
       const record = {
-        sequence,
+        id: `${program.location}-current`,
         type: "weather",
         location: program.location,
         time: new Date(),
@@ -50,16 +29,13 @@ const run = conn => {
       };
       console.log(record);
       r.table(program.dbTable)
-        .insert(record)
+        .insert(record, { conflict: "replace" })
         .run(conn, (err, result) => {
           if (err) throw err;
           // console.log(result);
-          deleteOlderEntries(conn);
         });
     } catch (err) {
       console.error(err);
-    }
-    if (typeof record !== "undefined") {
     }
   });
 };
@@ -69,18 +45,3 @@ r.connect({ host: program.dbHost })
     run(conn);
   })
   .catch(err => console.error(err));
-
-const deleteOlderEntries = conn => {
-  try {
-    r.table(program.dbTable)
-      .filter({ type: "weather", location: program.location })
-      .filter(r.row("sequence").lt(sequence - 900))
-      .delete()
-      .run(conn, (err, result) => {
-        if (err) throw err;
-        // console.log(result);
-      });
-  } catch (err) {
-    console.error(err);
-  }
-};
