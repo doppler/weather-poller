@@ -18,16 +18,25 @@ if (!program.dbHost || !program.dbTable || !program.location) {
 }
 
 const run = conn => {
-  weatherStationFeed.stdout.on("data", data => {
+  let prevWindDirs = [];
+  const prevWindBufferLen = 120;
+  weatherStationFeed.stdout.on("data", line => {
+    const data = JSON.parse(line);
+    prevWindDirs.push(data.windDirection);
+    prevWindDirs =
+      prevWindDirs.length > prevWindBufferLen
+        ? prevWindDirs.slice(1, prevWindBufferLen + 1)
+        : prevWindDirs;
     try {
       const record = {
         id: `${program.location}-current`,
         type: "weather",
         location: program.location,
         time: new Date(),
-        ...JSON.parse(data)
+        ...data,
+        prevWindDirs
       };
-      console.log(record);
+      console.log(JSON.stringify(record));
       r.table(program.dbTable)
         .insert(record, { conflict: "replace" })
         .run(conn, (err, result) => {
