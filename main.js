@@ -1,6 +1,6 @@
 const program = require("commander");
 const { spawn } = require("child_process");
-const r = require("rethinkdb");
+const io = require("socket.io-client");
 
 const weatherStationFeed = spawn("node", ["vantage-poller.js"]);
 
@@ -46,20 +46,25 @@ const run = conn => {
         prevWindSpeeds
       };
       console.log(JSON.stringify(record));
-      r.table(program.dbTable)
-        .insert(record, { conflict: "replace" })
-        .run(conn, (err, result) => {
-          if (err) throw err;
-          // console.log(result);
-        });
+      socket.emit("weather-record", record);
     } catch (err) {
       console.error(err);
     }
   });
 };
 
-r.connect({ host: program.dbHost })
-  .then(conn => {
-    run(conn);
-  })
-  .catch(err => console.error(err));
+const socket = io(`http://${program.dbHost}:3001`, {
+  transports: ["websocket"]
+});
+socket.open();
+
+socket.on("connect", () => {
+  run();
+  console.log("attempting socket connection");
+  socket.emit("location", program.location, ack => console.log("ack", ack));
+});
+
+socket.on("connect_error", err => console.error);
+socket.on("connect_timeout", timeout => console.error);
+socket.on("error", err => console.error);
+socket.on("disconnect", reason => console.log);
