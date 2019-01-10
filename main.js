@@ -6,13 +6,12 @@ const weatherStationFeed = spawn("node", ["vantage-poller.js"]);
 
 program
   .version("0.0.1")
-  .option("-h --db-host <host>", "RethinkDB host")
-  .option("-p --db-port <port>", "RethinkDB port")
-  .option("-t --db-table <name>", "RethinkDB table")
+  .option("-h --host <host>", "server host")
+  .option("-p --port <port>", "server port")
   .option("-l --location <location>", "Weather station location")
   .parse(process.argv);
 
-if (!program.dbHost || !program.dbTable || !program.location) {
+if (!program.host || !program.port || !program.location) {
   console.error(program.outputHelp());
   process.exit(1);
 }
@@ -23,7 +22,14 @@ const run = conn => {
   let prevWindDirs = new Array(prevWindDirsBufferLen).fill(0);
   let prevWindSpeeds = new Array(prevWindSpeedsBufferLen).fill(0);
   weatherStationFeed.stdout.on("data", line => {
-    const data = JSON.parse(line);
+    let data;
+    try {
+      data = JSON.parse(line);
+    } catch (err) {
+      console.error(err);
+      return;
+    }
+    if (typeof data === "undefined") return;
     prevWindDirs.push(data.windDirection);
     prevWindSpeeds.push(data.windSpeed);
     prevWindDirs =
@@ -53,7 +59,7 @@ const run = conn => {
   });
 };
 
-const socket = io(`http://${program.dbHost}:3001`, {
+const socket = io(`http://${program.host}:${program.port}`, {
   transports: ["websocket"]
 });
 socket.open();
@@ -61,7 +67,7 @@ socket.open();
 socket.on("connect", () => {
   run();
   console.log("attempting socket connection");
-  socket.emit("location", program.location, ack => console.log("ack", ack));
+  // socket.emit("location", program.location, ack => console.log("ack", ack));
 });
 
 socket.on("connect_error", err => console.error);
