@@ -18,10 +18,10 @@ if (!program.dbHost || !program.dbTable || !program.location) {
 }
 
 const run = conn => {
-  let prevWindDirs = [];
-  let prevWindSpeeds = [];
   const prevWindDirsBufferLen = 60; // 2 minutes
   const prevWindSpeedsBufferLen = (60 * 20) / 2; // 20 minutes
+  let prevWindDirs = new Array(prevWindDirsBufferLen).fill(0);
+  let prevWindSpeeds = new Array(prevWindSpeedsBufferLen).fill(0);
   weatherStationFeed.stdout.on("data", line => {
     const data = JSON.parse(line);
     prevWindDirs.push(data.windDirection);
