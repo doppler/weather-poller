@@ -15,9 +15,8 @@ if (!program.host || !program.port || !program.location) {
   console.error(program.outputHelp());
   process.exit(1);
 }
-
 const run = conn => {
-  const prevWindDirsBufferLen = 60; // 2 minutes
+  const prevWindDirsBufferLen = 24;
   const prevWindSpeedsBufferLen = (60 * 20) / 2; // 20 minutes
   let prevWindDirs = new Array(prevWindDirsBufferLen).fill(0);
   let prevWindSpeeds = new Array(prevWindSpeedsBufferLen).fill(0);
