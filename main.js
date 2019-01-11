@@ -39,7 +39,6 @@ const run = conn => {
       prevWindSpeeds.length > prevWindSpeedsBufferLen
         ? prevWindSpeeds.slice(1, prevWindSpeedsBufferLen + 1)
         : prevWindSpeeds;
-    if (Math.max(...prevWindSpeeds) === 0) prevWindSpeeds.splice(0, 0, 5);
     try {
       const record = {
         id: `${program.location}-current`,
