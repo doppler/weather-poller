@@ -1,3 +1,4 @@
+const FixedLengthArray = require("./lib/fixed-length-array");
 const program = require("commander");
 const { spawn } = require("child_process");
 const io = require("socket.io-client");
@@ -16,10 +17,8 @@ if (!program.host || !program.port || !program.location) {
   process.exit(1);
 }
 const run = conn => {
-  const prevWindDirsBufferLen = 24;
-  const prevWindSpeedsBufferLen = (60 * 20) / 2; // 20 minutes
-  let prevWindDirs = new Array(prevWindDirsBufferLen).fill(0);
-  let prevWindSpeeds = new Array(prevWindSpeedsBufferLen).fill(0);
+  const prevWindDirs = new FixedLengthArray(24);
+  const prevWindSpeeds = new FixedLengthArray((60 * 20) / 2); // 20 minutes
   weatherStationFeed.stdout.on("data", line => {
     let data;
     try {
@@ -31,14 +30,6 @@ const run = conn => {
     if (typeof data === "undefined") return;
     prevWindDirs.push(data.windDirection);
     prevWindSpeeds.push(data.windSpeed);
-    prevWindDirs =
-      prevWindDirs.length > prevWindDirsBufferLen
-        ? prevWindDirs.slice(1, prevWindDirsBufferLen + 1)
-        : prevWindDirs;
-    prevWindSpeeds =
-      prevWindSpeeds.length > prevWindSpeedsBufferLen
-        ? prevWindSpeeds.slice(1, prevWindSpeedsBufferLen + 1)
-        : prevWindSpeeds;
     try {
       const record = {
         id: `${program.location}-current`,
