@@ -7,12 +7,12 @@ const weatherStationFeed = spawn("node", ["vantage-poller.js"]);
 
 program
   .version("0.0.1")
-  .option("-h --host <host>", "server host")
-  .option("-p --port <port>", "server port")
+  // .option("-h --host <host>", "server host")
+  // .option("-p --port <port>", "server port")
   .option("-l --location <location>", "Weather station location")
   .parse(process.argv);
 
-if (!program.host || !program.port || !program.location) {
+if (!program.location) {
   console.error(program.outputHelp());
   process.exit(1);
 }
@@ -40,26 +40,47 @@ const run = conn => {
         prevWindDirs,
         prevWindSpeeds
       };
-      console.log(JSON.stringify(record));
+      console.log(JSON.stringify(record, ["time"]));
       socket.emit("weather-record", record);
+      devSocket.emit("weather-record", record);
     } catch (err) {
       console.error(err);
     }
   });
 };
 
-const socket = io(`http://${program.host}:${program.port}`, {
+const socket = io(`https://spaceland-load-clock.herokuapp.com`, {
   transports: ["websocket"]
 });
 socket.open();
 
 socket.on("connect", () => {
   run();
-  console.log("attempting socket connection");
+  console.log(
+    "opened socket to production server at https://spaceland-load-clock.herokuapp.com"
+  );
   // socket.emit("location", program.location, ack => console.log("ack", ack));
 });
 
-socket.on("connect_error", err => console.error);
-socket.on("connect_timeout", timeout => console.error);
-socket.on("error", err => console.error);
-socket.on("disconnect", reason => console.log);
+socket.on("connect_error", err => console.error("socket connect_error", err));
+socket.on("connect_timeout", timeout =>
+  console.error("socket connect_timeout", timeout)
+);
+socket.on("error", err => console.error("socket error", err));
+socket.on("disconnect", reason => console.log("socket disconnect", reason));
+
+const devSocket = io("http://10.101.25.123:5000", {
+  transports: ["websocket"]
+});
+devSocket.open();
+devSocket.on("connect", () => {
+  console.log(
+    "opened socket to development server at http://10.101.25.123:5000"
+  );
+});
+devSocket.on("connect_error", err => console.error("devSocket connect_error"));
+devSocket.on("connect_timeout", timeout =>
+  console.error("socket connect_timeout", timeout)
+);
+devSocket.on("error", err => console.error("socket error", err));
+devSocket.on("disconnect", reason => console.log("socket disconnect", reason));
