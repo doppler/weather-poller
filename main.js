@@ -16,9 +16,15 @@ if (!program.location) {
   console.error(program.outputHelp());
   process.exit(1);
 }
+
+let running = false;
+
+const prevWindDirs = new FixedLengthArray(24);
+const prevWindSpeeds = new FixedLengthArray((60 * 20) / 2); // 20 minutes
+
 const run = conn => {
-  const prevWindDirs = new FixedLengthArray(24);
-  const prevWindSpeeds = new FixedLengthArray((60 * 20) / 2); // 20 minutes
+  if (running) return;
+  running = true;
   weatherStationFeed.stdout.on("data", line => {
     let data;
     try {
@@ -83,4 +89,5 @@ devSocket.on("connect_timeout", timeout =>
   console.error("socket connect_timeout", timeout)
 );
 devSocket.on("error", err => console.error("socket error", err));
+
 devSocket.on("disconnect", reason => console.log("socket disconnect", reason));
