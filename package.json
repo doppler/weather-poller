@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "commander": "^2.19.0",
+    "dotenv": "^6.2.0",
     "nodemon": "^1.18.9",
     "rethinkdb": "^2.3.3",
     "serialport": "^7.1.1",
