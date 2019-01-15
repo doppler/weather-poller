@@ -1,12 +1,16 @@
+require("dotenv").config();
 const SerialPort = require("serialport");
 const VantageLoopPacketParser = require("./lib/vantage-loop-packet-parser");
 const jsonFromVantageLoopPacket = require("./lib/json-from-vantage-loop-packet");
-const config = require("./config");
 let consoleIsAwake = false;
 let loopRequestInterval;
-const port = new SerialPort(config.PORT, { baudRate: 19200 }, err => {
-  if (err) return console.error("Error:", err.message);
-});
+const port = new SerialPort(
+  process.env.SERIALPORT,
+  { baudRate: 19200 },
+  err => {
+    if (err) return console.error("Error:", err.message);
+  }
+);
 const parser = port.pipe(new VantageLoopPacketParser());
 const requestLoop = () => {
   if (port.isOpen && consoleIsAwake) {
