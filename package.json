@@ -1,0 +1,45 @@
+{
+  "name": "new-load-clock",
+  "main": "server.js",
+  "version": "0.1.0",
+  "private": true,
+  "proxy": "http://localhost:5000",
+  "dependencies": {
+    "date-fns": "^2.0.0-alpha.27",
+    "express": "^4.16.4",
+    "moment-timezone": "^0.5.23",
+    "node-sass": "^4.11.0",
+    "react": "^16.7.0-alpha.2",
+    "react-dom": "^16.7.0-alpha.2",
+    "react-scripts": "2.1.2",
+    "socket.io": "^2.2.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "postinstall": "react-scripts build",
+    "server": "nodemon server.js",
+    "dev": "concurrently \"yarn start\" \"yarn server\""
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "devDependencies": {
+    "concurrently": "^4.1.0",
+    "nodemon": "^1.18.9"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "src/**/*",
+      "public/**/*"
+    ]
+  }
+}
