@@ -1,6 +1,6 @@
 {
   "name": "weather-station-poller",
-  "version": "1.0.0",
+  "version": "0.1.1",
   "description": "Polls Vantage weather station serial connection and relayes select parsed data via websockets.",
   "main": "index.js",
   "bin": "./bir/poller.js",
