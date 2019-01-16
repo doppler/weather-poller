@@ -2,10 +2,11 @@
   "name": "weather-station-poller",
   "version": "1.0.0",
   "description": "Polls Vantage weather station serial connection and relayes select parsed data via websockets.",
-  "main": "weather-station-poller.js",
+  "main": "index.js",
+  "bin": "./bir/poller.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon weather-station-poller.js",
+    "start": "nodemon index.js",
     "build": "nexe"
   },
   "author": "David Rose",
