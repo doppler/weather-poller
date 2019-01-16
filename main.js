@@ -40,6 +40,7 @@ const initializeSerialPort = () => {
         err.message,
         `-- Ensure ${path.basename(__filename)} isn't already running.`
       );
+    // process.exit(1);
   });
   parser = port.pipe(new VantageLoopPacketParser());
   port.on("close", () => initializeSerialPort());
