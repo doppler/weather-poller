@@ -1,5 +1,5 @@
 #!/usr/bin/env node
 
-const weatherStationPoller = require("../weather-station-poller");
+const weatherStationPoller = require("../lib/poller");
 
 weatherStationPoller();
