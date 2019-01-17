@@ -1,9 +1,9 @@
 {
-  "name": "weather-station-poller",
+  "name": "weather-poller",
   "version": "0.1.1",
   "description": "Polls Vantage weather station serial connection and relayes select parsed data via websockets.",
   "main": "index.js",
-  "bin": "./bin/poller.js",
+  "bin": "./bin/weather-poller.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon index.js",

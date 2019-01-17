@@ -1,3 +1,3 @@
-const weatheStationPoller = require("./lib/poller");
+const WeatherPoller = require("./lib/weather-poller");
 
-weatheStationPoller();
+WeatherPoller();
