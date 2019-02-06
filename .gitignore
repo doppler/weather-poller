@@ -3,3 +3,4 @@ node_modules
 prevWinds.json
 *.exe
 bindings.node
+yarn-error.log
